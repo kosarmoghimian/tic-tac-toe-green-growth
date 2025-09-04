@@ -1,0 +1,62 @@
+/**
+*
+*	Name:			Atiq Fonts
+*	Version:			1.0
+*	Author:			Ali Sajjadieh,Shahrzad Akbari
+*	Created on:		Aug 02, 2022
+*	Updated on:		Aug 02, 2022
+*	Website:		http://fontiran.com
+*	Copyright:		Commercial/Proprietary Software
+--------------------------------------------------------------------------------------
+فونت عتیق یک نرم افزار مالکیتی محسوب می شود. جهت آگاهی از قوانین استفاده از این فونت ها لطفا به وب سایت (فونت ایران دات کام) مراجعه نمایید
+--------------------------------------------------------------------------------------
+Atiq fonts are considered a proprietary software. To gain information about the laws regarding the use of these fonts, please visit www.fontiran.com 
+--------------------------------------------------------------------------------------
+This set of fonts are used in this project under the license: (.....)
+------------------------------------------------------------------------------------- fonts/-
+*	
+**/
+
+@font-face {
+	font-family: Atiq;
+	font-style: normal;
+	font-weight: 400;
+	src: url('woff/Atiq-Regular.woff') format('woff'),   
+	url('woff2/Atiq-Regular.woff2') format('woff2');		 
+}
+
+@font-face {
+	font-family: Atiq;
+	font-style: normal;
+	font-weight: 500;
+	src: url('woff/Atiq-Medium.woff') format('woff'),   
+	url('woff2/Atiq-Medium.woff2') format('woff2');		 
+}
+
+
+@font-face {
+	font-family: Atiq;
+	font-style: normal;
+	font-weight: 700;
+	src: url('woff/Atiq-Bold.woff') format('woff'),   
+	url('woff2/Atiq-Bold.woff2') format('woff2');		 
+}
+
+
+@font-face {
+	font-family: Atiq;
+	font-style: normal;
+	font-weight: bold;
+	src: url('woff/IRANYekanX-Bold.woff') format('woff'),   
+	url('woff2/IRANYekanX-Bold.woff2') format('woff2');	 
+}
+
+@font-face {
+	font-family: Atiq;
+	font-style: normal;
+	font-weight: normal;
+	src: url('woff/IAtiq-Regular.woff') format('woff'),   
+	url('woff2/Atiq-Regular.woff2') format('woff2');	
+}
+
+

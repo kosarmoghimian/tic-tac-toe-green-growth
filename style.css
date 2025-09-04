@@ -1,0 +1,78 @@
+@font-face {
+  font-family: 'Atiq';
+  src: url('fonts/Atiq.woff2') format('woff2');
+}
+
+body {
+  margin: 0;
+  font-family: 'Atiq', sans-serif;
+  background: url('assets/texture.jpg') repeat;
+  color: #803214;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.game {
+  text-align: center;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-size: 28px;
+}
+
+.title-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.flower-container {
+  margin: 20px 0;
+}
+
+#flower {
+  width: 120px;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 80px);
+  grid-template-rows: repeat(3, 80px);
+  gap: 5px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+.cell {
+  width: 80px;
+  height: 80px;
+  border: 2px solid #803214;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  cursor: pointer;
+}
+
+.message {
+  margin: 15px 0;
+  font-size: 18px;
+}
+
+button {
+  background: transparent;
+  border: 2px solid #803214;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Atiq';
+  cursor: pointer;
+}
