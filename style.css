@@ -1,78 +1,149 @@
 @font-face {
   font-family: 'Atiq';
   src: url('fonts/Atiq.woff2') format('woff2');
+  font-display: swap;
 }
 
-body {
-  margin: 0;
-  font-family: 'Atiq', sans-serif;
-  background: url('assets/texture.jpg') repeat;
-  color: #803214;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+:root{
+  --stroke: #803214;
+  --bg-texture: url('assets/texture.jpg');
+  --radius: 14px;
 }
 
-.game {
-  text-align: center;
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family: 'Atiq', system-ui, Tahoma, sans-serif;
+  background:
+    linear-gradient(0deg, rgba(255,255,255,0.92), rgba(255,255,255,0.92)),
+    var(--bg-texture);
+  background-size: cover;
+  color: var(--stroke);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 
-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
+/* ساختار اصلی */
+.app{
+  width: min(720px, 96vw);
+  max-width:720px;
+  display:grid;
+  gap:18px;
+  align-items:start;
 }
 
-.title {
-  font-size: 28px;
+/* هدر */
+.site-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  border-bottom:2px solid var(--stroke);
+  padding-bottom:10px;
+}
+.title{font-size:clamp(20px,4.4vw,28px); margin:0}
+.title-icon{width:44px;height:44px;border:2px solid var(--stroke);border-radius:50%;padding:4px;object-fit:contain}
+
+/* پنل بالا - وضعیت و گل */
+.top-panel{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.status{
+  border:2px dashed var(--stroke);
+  padding:10px 14px;
+  border-radius:12px;
+  font-size:16px;
+  min-width:140px;
+  text-align:center;
+}
+.flower{
+  width:92px;
+  height:92px;
+  border-radius:12px;
+  border:2px solid var(--stroke);
+  overflow:hidden;
+  display:inline-block;
+  position:relative;
+}
+.flower .stage{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  opacity:0;
+  transition:opacity .55s ease;
+}
+.flower .stage.active{opacity:1}
+
+/* صفحه بازی (برد) */
+.board{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  width:100%;
+  max-width:520px;
+  margin:0 auto;
+}
+.cell{
+  background:transparent;
+  aspect-ratio:1/1;
+  border:2px solid var(--stroke);
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  font-size:40px;
+  cursor:pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select:none;
+}
+.cell.disabled{opacity:.45;pointer-events:none}
+
+/* دکمه‌ها */
+.controls{display:flex;justify-content:center}
+.btn{
+  background:transparent;
+  border:2px solid var(--stroke);
+  color:var(--stroke);
+  padding:10px 16px;
+  border-radius:999px;
+  cursor:pointer;
+  font-family:inherit;
 }
 
-.title-icon {
-  width: 40px;
-  height: 40px;
+/* اوورلی وسط */
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,0.9);
+  align-items:center;
+  justify-content:center;
+  z-index:999;
 }
-
-.flower-container {
-  margin: 20px 0;
+.overlay.show{display:flex}
+.overlay-box{
+  width:min(520px,92vw);
+  background:transparent;
+  border:2px solid var(--stroke);
+  padding:18px;
+  border-radius:14px;
+  text-align:center;
+  cursor:pointer;
 }
+.overlay-box h2{margin:0 0 8px;font-size:20px}
+.overlay-box p{margin:0 0 8px;font-size:16px}
+.overlay-hint{opacity:.8;font-size:13px;margin-top:8px}
 
-#flower {
-  width: 120px;
-  transition: opacity 0.8s ease-in-out;
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(3, 80px);
-  grid-template-rows: repeat(3, 80px);
-  gap: 5px;
-  justify-content: center;
-  margin: 20px auto;
-}
-
-.cell {
-  width: 80px;
-  height: 80px;
-  border: 2px solid #803214;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 40px;
-  cursor: pointer;
-}
-
-.message {
-  margin: 15px 0;
-  font-size: 18px;
-}
-
-button {
-  background: transparent;
-  border: 2px solid #803214;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-family: 'Atiq';
-  cursor: pointer;
+/* واکنشگرایی موبایل */
+@media (max-width:420px){
+  .cell{font-size:30px}
+  .flower{width:78px;height:78px}
+  .title-icon{width:34px;height:34px}
+  .overlay-box{padding:14px}
 }
