@@ -1,26 +1,44 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>رشد سبز</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>رشد سبز — بازی دوز</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="game">
-    <header>
-      <h1 class="title">رشد سبز</h1>
-      <img src="assets/title-icon.png" alt="icon" class="title-icon">
-    </header>
+  <header class="site-header">
+    <h1 class="title">رشد سبز</h1>
+    <img src="assets/title-icon.png" alt="آیکون" class="title-icon">
+  </header>
 
-    <div class="flower-container">
-      <img id="flower" src="assets/flower0.png" alt="flower">
+  <main class="app">
+    <section class="top-panel">
+      <div class="status" id="status">نوبت شما (X)</div>
+      <div class="flower" aria-hidden="true">
+        <img src="assets/flower0.png" alt="گلدان" class="stage active" data-stage="0">
+        <img src="assets/flower1.png" alt="جوانه" class="stage" data-stage="1">
+        <img src="assets/flower2.png" alt="نیمه رشد" class="stage" data-stage="2">
+        <img src="assets/flower3.png" alt="گل کامل" class="stage" data-stage="3">
+      </div>
+    </section>
+
+    <section id="board" class="board" aria-label="بازی دوز">
+      <!-- سلول‌ها توسط js ساخته می‌شوند -->
+    </section>
+
+    <div class="controls">
+      <button id="resetAll" class="btn">شروع دوباره</button>
     </div>
+  </main>
 
-    <div class="board" id="board"></div>
-
-    <div class="message" id="message"></div>
-
-    <button id="resetBtn">شروع دوباره</button>
+  <!-- اوورلی مرکزی -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="overlay-box" id="overlayBox" role="button" tabindex="0">
+      <h2 id="overlayTitle"></h2>
+      <p id="overlaySubtitle"></p>
+      <div class="overlay-hint">برای ادامه کلیک کن</div>
+    </div>
   </div>
 
   <script src="script.js"></script>
