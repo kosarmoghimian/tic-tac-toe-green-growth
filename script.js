@@ -1,141 +1,204 @@
-const board = document.getElementById("board");
-const message = document.getElementById("message");
-const flower = document.getElementById("flower");
-const resetBtn = document.getElementById("resetBtn");
+// ساده‌تر شده — هوش‌مصنوعی منطقی اما قابل شکست
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const overlay = document.getElementById('overlay');
+const overlayBox = document.getElementById('overlayBox');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlaySubtitle = document.getElementById('overlaySubtitle');
+const resetAllBtn = document.getElementById('resetAll');
+const flowerImgs = Array.from(document.querySelectorAll('.flower .stage'));
 
-let cells = Array(9).fill(null);
-let player = "X";
-let ai = "O";
-let flowerStage = 0;
+let board = Array(9).fill(null); // null | 'X' | 'O'
+let player = 'X';
+let ai = 'O';
+let gameOver = false;
+let growth = 0; // 0..3
 
-function createBoard() {
-  board.innerHTML = "";
-  cells = Array(9).fill(null);
-  for (let i = 0; i < 9; i++) {
-    const cell = document.createElement("div");
-    cell.classList.add("cell");
+// ساخت برد و جانشین کردن سلول‌ها
+function buildBoard(){
+  boardEl.innerHTML = '';
+  for(let i=0;i<9;i++){
+    const cell = document.createElement('button');
+    cell.className = 'cell';
     cell.dataset.index = i;
-    cell.addEventListener("click", () => makeMove(i));
-    board.appendChild(cell);
+    cell.addEventListener('click', ()=> onPlayerMove(i));
+    boardEl.appendChild(cell);
   }
+  updateStatus();
 }
 
-function makeMove(i) {
-  if (cells[i] || checkWinner(cells)) return;
-  cells[i] = player;
+// بروزرسانی نمایش وضعیت
+function updateStatus(text){
+  if(text) statusEl.textContent = text;
+  else statusEl.textContent = gameOver ? 'بازی تمام شد' : `نوبت شما (X)`;
+}
+
+// نمایش علامت در سلول
+function render(){
+  const cells = boardEl.querySelectorAll('.cell');
+  cells.forEach((el, i)=>{
+    el.textContent = board[i] || '';
+    if(board[i]) el.classList.add('disabled'); else el.classList.remove('disabled');
+  });
+}
+
+// بررسی برد/مساوی
+const wins = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function checkWinner(b){
+  for(const [a,c,d] of wins){
+    if(b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+  }
+  if(b.every(Boolean)) return 'D';
+  return null;
+}
+
+// در صورت برد/باخت/مساوی - اوورلی را نشان بده
+function handleGameEnd(result){
+  gameOver = true;
+  if(result === player){
+    // رشد گل
+    if(growth < 3) growth++;
+    updateFlower();
+    if(growth >= 3){
+      showOverlay('🎉 تبریک! رشد سبز کامل شد 🎉', 'کلیک کن تا بازی پاک شود و ادامه بده');
+    } else {
+      showOverlay('بردی! 👏', 'مرحله بعد (کلیک کن)');
+    }
+  } else if(result === ai){
+    showOverlay('باختی! 😢', 'دوباره امتحان کن (کلیک کن)');
+  } else { // مساوی
+    showOverlay('مساوی شد! 🤝', 'دوباره امتحان کن (کلیک کن)');
+  }
+  updateStatus();
+}
+
+// آپدیت تصویر گل با فید
+function updateFlower(){
+  flowerImgs.forEach((img, idx)=>{
+    img.classList.toggle('active', idx === growth);
+  });
+}
+
+// بازیکن کلیک کرد
+function onPlayerMove(idx){
+  if(gameOver || board[idx]) return;
+  board[idx] = player;
   render();
-  if (checkGameEnd(player)) return;
-  aiMove();
-}
-
-function aiMove() {
-  let move = bestMove();
-  if (move !== null) {
-    cells[move] = ai;
+  const res = checkWinner(board);
+  if(res) return handleGameEnd(res);
+  // نوبت AI
+  updateStatus('نوبت حریف (هوش مصنوعی)');
+  // کمی تاخیر برای احساس طبیعی
+  setTimeout(()=>{
+    aiMove();
     render();
-    checkGameEnd(ai);
+    const r2 = checkWinner(board);
+    if(r2) return handleGameEnd(r2);
+    updateStatus();
+  }, 220);
+}
+
+// هوش مصنوعی سبک‌تر و قابل شکست‌تر
+function aiMove(){
+  // 1. اگر می‌تواند ببرد، بزند
+  let move = findWinningMove(ai);
+  if(move !== null){ board[move] = ai; return; }
+
+  // 2. اگر باید بلاک کند، بلاک کند
+  move = findWinningMove(player);
+  if(move !== null){
+    // کمی شانس برای خطا (تا سختی کمتر شود)
+    if(Math.random() < 0.9){ board[move] = ai; return; }
+  }
+
+  // 3. اگر مرکز آزاد است، بیشتر وقت‌ها بگیرد
+  if(!board[4]){
+    if(Math.random() < 0.85){ board[4] = ai; return; }
+  }
+
+  // 4. انتخاب گوشه با احتمال بالاتر
+  const corners = [0,2,6,8].filter(i=>!board[i]);
+  if(corners.length){
+    if(Math.random() < 0.9){
+      board[randomPick(corners)] = ai; return;
+    }
+  }
+
+  // 5. در غیر اینصورت یک خانه تصادفی (شامل کناره‌ها)
+  const empties = board.map((v,i)=> v? null : i).filter(v=>v!==null);
+  if(empties.length){
+    board[randomPick(empties)] = ai;
   }
 }
 
-function bestMove() {
-  // Minimax ساده برای حرکات منطقی
-  let bestScore = -Infinity;
-  let move = null;
-  for (let i = 0; i < 9; i++) {
-    if (!cells[i]) {
-      cells[i] = ai;
-      let score = minimax(cells, 0, false);
-      cells[i] = null;
-      if (score > bestScore) {
-        bestScore = score;
-        move = i;
-      }
+// پیدا کردن حرکت برد فوری برای مهرهٔ given
+function findWinningMove(mark){
+  for(let i=0;i<9;i++){
+    if(!board[i]){
+      board[i] = mark;
+      const res = checkWinner(board);
+      board[i] = null;
+      if(res === mark) return i;
     }
-  }
-  return move;
-}
-
-function minimax(boardState, depth, isMaximizing) {
-  let winner = checkWinner(boardState);
-  if (winner === ai) return 10 - depth;
-  if (winner === player) return depth - 10;
-  if (boardState.every(c => c)) return 0;
-
-  if (isMaximizing) {
-    let bestScore = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!boardState[i]) {
-        boardState[i] = ai;
-        let score = minimax(boardState, depth + 1, false);
-        boardState[i] = null;
-        bestScore = Math.max(score, bestScore);
-      }
-    }
-    return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!boardState[i]) {
-        boardState[i] = player;
-        let score = minimax(boardState, depth + 1, true);
-        boardState[i] = null;
-        bestScore = Math.min(score, bestScore);
-      }
-    }
-    return bestScore;
-  }
-}
-
-function checkWinner(b) {
-  const wins = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
-  ];
-  for (let [a,b1,c] of wins) {
-    if (b[a] && b[a] === b[b1] && b[a] === b[c]) return b[a];
   }
   return null;
 }
 
-function checkGameEnd(current) {
-  let winner = checkWinner(cells);
-  if (winner) {
-    if (winner === player) {
-      flowerStage = Math.min(flowerStage + 1, 3);
-      flower.style.opacity = 0;
-      setTimeout(() => {
-        flower.src = `assets/flower${flowerStage}.png`;
-        flower.style.opacity = 1;
-      }, 300);
-      if (flowerStage < 3) {
-        message.innerHTML = "بردی! مرحله بعد 👉";
-      } else {
-        message.innerHTML = "🎉 تبریک! رشد سبز کامل شد 🎉";
-      }
-    } else {
-      message.innerHTML = "باختی! دوباره امتحان کن 👉";
-    }
-    return true;
-  } else if (cells.every(c => c)) {
-    message.innerHTML = "مساوی شد! دوباره امتحان کن 👉";
-    return true;
+function randomPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+// اوورلی: متن و زیرمتن و کلیک برای پاک‌سازی
+و شروع دور بعد
+function showOverlay(title, subtitle){
+  overlayTitle.textContent = title;
+  overlaySubtitle.textContent = subtitle || '';
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+
+  // وقتی اوورلی کلیک شد یا با اینتر، بازی پاک می‌شود و دور بعد شروع می‌شود
+  function proceed(){
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden','true');
+    startNextRound();
+    // حذف هندلرها تا از دوبار اجرا جلوگیری شود
+    overlayBox.removeEventListener('click', proceed);
+    overlayBox.removeEventListener('keydown', onKey);
   }
-  return false;
+  function onKey(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      proceed();
+    }
+  }
+  overlayBox.addEventListener('click', proceed);
+  overlayBox.addEventListener('keydown', onKey);
 }
 
-function render() {
-  const divs = document.querySelectorAll(".cell");
-  divs.forEach((div, i) => {
-    div.textContent = cells[i] || "";
-  });
+// شروع دور بعد (پاک کردن برد اما نگه داشتن رشد)
+function startNextRound(){
+  board = Array(9).fill(null);
+  gameOver = false;
+  render();
+  updateStatus('نوبت شما (X)');
 }
 
-resetBtn.addEventListener("click", () => {
-  flowerStage = 0;
-  flower.src = "assets/flower0.png";
-  message.textContent = "";
-  createBoard();
-});
+// ریست کامل (شامل رشد گل)
+function resetAll(){
+  board = Array(9).fill(null);
+  growth = 0;
+  gameOver = false;
+  updateFlower();
+  render();
+  updateStatus('نوبت شما (X)');
+}
 
-createBoard();
+// دکمه‌ها و شروع اولیه
+resetAllBtn.addEventListener('click', resetAll);
+
+// ساخت و رندر اولیه
+buildBoard();
+render();
+updateFlower();
